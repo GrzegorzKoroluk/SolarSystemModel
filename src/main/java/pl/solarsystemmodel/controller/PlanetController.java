@@ -3,6 +3,8 @@ package pl.solarsystemmodel.controller;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pl.solarsystemmodel.controller.dto.PlanetDto;
 import pl.solarsystemmodel.controller.dto.PlanetDtoMapper;
@@ -33,7 +35,8 @@ public class PlanetController {
 
     @ApiOperation(value = "Shows all planets and adds pagination")
     @GetMapping(value = "/2.getAllPagination")
-    public List<PlanetDto> getAllPagination(@RequestParam(required = false) Integer page) {
+    public List<PlanetDto> getAllPagination(@RequestParam(required = false) Integer page,
+                                            @AuthenticationPrincipal UsernamePasswordAuthenticationToken user /* do wee need this parameter here?*/) {
         int pageNumber = page != null && page >= 0 ? page : 0;
         return PlanetDtoMapper.mapToPlanetDtos(planetService.getPlanetsPagination(pageNumber));
     }

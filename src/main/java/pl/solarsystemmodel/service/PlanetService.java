@@ -24,6 +24,7 @@ public class PlanetService {
     public List<Planet> getAll() {
         return planetRepository.findAll();
     }
+
     public List<Planet> getPlanetsPagination(int page) {
         return planetRepository.findAllPlanets(PageRequest.of(page, PAGE_SIZE));
     }
