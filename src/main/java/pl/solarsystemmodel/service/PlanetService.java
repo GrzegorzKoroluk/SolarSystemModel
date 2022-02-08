@@ -1,6 +1,9 @@
 package pl.solarsystemmodel.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class PlanetService {
         return planetRepository.findAllPlanets(PageRequest.of(page, PAGE_SIZE));
     }
 
+    @Cacheable(cacheNames = "SinglePlanet", key = "#id")
     public Planet getSingleObject(long id) {
         return planetRepository.findById(id)
                 .orElseThrow();
@@ -38,6 +42,7 @@ public class PlanetService {
         return planetRepository.findAllByName(name);
     }
 
+    @Cacheable(cacheNames = "PlanetsWithSatellites")
     public List<Planet> getPlanetsPaginationAndSorting(int page, Sort.Direction sort) {
         List<Planet> allPlanets = planetRepository.findAllPlanets(PageRequest.of(page, PAGE_SIZE, Sort.by(sort, "id")));
         List<Long> ids = allPlanets.stream().map(Planet::getId).collect(Collectors.toList());
@@ -55,6 +60,7 @@ public class PlanetService {
     }
 
     @Transactional
+    @CachePut(cacheNames = "SinglePost", key = "#result.id")
     public Planet editPlanet(Planet planet) {
         Planet planetEdited = planetRepository.findById(planet.getId()).orElseThrow();
         planetEdited.setName(planet.getName());
@@ -63,7 +69,12 @@ public class PlanetService {
         return planetEdited;
     }
 
+    @CacheEvict(cacheNames = "SinglePost")
     public void deletePlanet(long id) {
         planetRepository.deleteById(id);
+    }
+
+    @CacheEvict(cacheNames = "PlanetsWithSatellites")
+    public void clearPlanetsWithSatellites() {
     }
 }
